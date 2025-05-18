@@ -1,31 +1,17 @@
-import openai
 import streamlit as st
 
-openai.api_key = st.secrets["openai"]["api_key"]
+# Esconde menu, rodapé e cabeçalho
+hide_streamlit_style = """
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    </style>
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-st.set_page_config(page_title="ChatVision", page_icon="💡")
+# Exemplo simples de chat
 st.title("ChatVision")
-st.markdown("Conversando com a IA GPT-3.5 da OpenAI")
-
-if "messages" not in st.session_state:
-    st.session_state["messages"] = [
-        {"role": "system", "content": "Você é um assistente chamado ChatVision, sempre útil, amigável e direto."}
-    ]
-
-for msg in st.session_state.messages[1:]:
-    st.chat_message(msg["role"]).markdown(msg["content"])
-
-prompt = st.chat_input("Digite sua mensagem")
-if prompt:
-    st.chat_message("user").markdown(prompt)
-    st.session_state.messages.append({"role": "user", "content": prompt})
-
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
-        messages=st.session_state.messages
-    )
-
-    reply = response.choices[0].message["content"]
-    st.chat_message("assistant").markdown(reply)
-    st.session_state.messages.append({"role": "assistant", "content": reply})
-  
+user_input = st.text_input("Você:", "")
+if user_input:
+    st.write("Resposta da IA: Aqui vai a resposta gerada.")
