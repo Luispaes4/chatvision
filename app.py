@@ -1,37 +1,30 @@
-import streamlit as st
 import google.generativeai as genai
+import streamlit as st
 
-# Esconde menu, rodapé e cabeçalho
+# Esconde menus
 st.markdown("""
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
-    .block-container {padding-top: 2rem;}
     </style>
 """, unsafe_allow_html=True)
 
-# Configura a API do Gemini
+# Sua chave da API
 genai.configure(api_key="AIzaSyDbDd4xX4_be2mHEd27p1HLwSG0g8nde40")
 
-model = genai.GenerativeModel(model_name="models/gemini-pro")
+# Cria modelo chat Gemini
+model = genai.GenerativeModel("gemini-pro")
 
 st.title("ChatVision")
 
-if "chat_history" not in st.session_state:
-    st.session_state.chat_history = []
+# Caixa de texto para o usuário
+user_input = st.text_input("Digite sua pergunta:")
 
-prompt = st.chat_input("Digite sua pergunta...")
-
-if prompt:
-    st.session_state.chat_history.append(("Você", prompt))
+if user_input:
     try:
-        response = model.generate_content(prompt)
-        st.session_state.chat_history.append(("IA", response.text))
+        response = model.generate_content(user_input)
+        st.write("Resposta da IA:", response.text)
     except Exception as e:
-        st.session_state.chat_history.append(("Erro", f"Erro ao chamar API: {e}"))
-
-for role, message in st.session_state.chat_history:
-    with st.chat_message("user" if role == "Você" else "assistant"):
-        st.markdown(message)
+        st.error(f"Erro ao chamar API: {e}")
         
