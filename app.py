@@ -14,7 +14,7 @@ st.markdown("""
 # Configura a API do Gemini
 genai.configure(api_key="AIzaSyDbDd4xX4_be2mHEd27p1HLwSG0g8nde40")
 
-model = genai.GenerativeModel("gemini-pro")
+model = genai.GenerativeModel(model_name="models/gemini-pro")
 
 st.title("ChatVision")
 
