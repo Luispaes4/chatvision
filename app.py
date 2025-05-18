@@ -1,41 +1,36 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Configure a chave de API
+# Configure sua API KEY
 genai.configure(api_key="AIzaSyDbDd4xX4_be2mHEd27p1HLwSG0g8nde40")
 
-# Ocultar cabeçalho, rodapé e menu
-st.markdown("""
+# Inicializa o modelo Gemini-Pro
+model = genai.GenerativeModel('models/gemini-pro')
+
+# Configuração da página
+st.set_page_config(page_title="ChatVision", layout="centered")
+
+# Esconde menu, rodapé e cabeçalho
+hide_streamlit_style = """
     <style>
-    #MainMenu, footer, header {visibility: hidden;}
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
     </style>
-""", unsafe_allow_html=True)
+"""
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 st.title("ChatVision")
 
-# Inicializar chat com o modelo Gemini-Pro
-try:
-    model = genai.GenerativeModel("gemini-pro")
-    chat = model.start_chat()
-except Exception as e:
-    st.error(f"Erro ao iniciar modelo: {e}")
-    st.stop()
+# Campo de entrada
+user_input = st.text_input("Você:", placeholder="Digite sua pergunta e pressione Enter")
 
-# Entrada do usuário
-if "history" not in st.session_state:
-    st.session_state.history = []
-
-user_input = st.chat_input("Digite sua pergunta")
-
+# Quando o usuário envia uma pergunta
 if user_input:
-    st.session_state.history.append({"role": "user", "text": user_input})
-    try:
-        response = chat.send_message(user_input)
-        st.session_state.history.append({"role": "ai", "text": response.text})
-    except Exception as e:
-        st.error(f"Erro ao chamar API: {e}")
-
-# Exibir histórico
-for msg in st.session_state.history:
-    with st.chat_message(msg["role"]):
-        st.markdown(msg["text"])
+    with st.spinner("Pensando..."):
+        try:
+            response = model.generate_content(user_input)
+            st.write("Resposta da IA:", response.text)
+        except Exception as e:
+            st.error(f"Erro ao chamar API: {e}")
+            
