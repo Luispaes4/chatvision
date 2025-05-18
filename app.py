@@ -1,7 +1,7 @@
 import streamlit as st
 import google.generativeai as genai
 
-# Configurar chave da API
+# Configure a chave de API
 genai.configure(api_key="AIzaSyDbDd4xX4_be2mHEd27p1HLwSG0g8nde40")
 
 # Ocultar cabeçalho, rodapé e menu
@@ -13,9 +13,9 @@ st.markdown("""
 
 st.title("ChatVision")
 
-# Inicializar o modelo Gemini-Pro corretamente com 'models/chat-bison-001' ou via ChatSession
+# Inicializar chat com o modelo Gemini-Pro
 try:
-    model = genai.GenerativeModel(model_name="gemini-pro")
+    model = genai.GenerativeModel("gemini-pro")
     chat = model.start_chat()
 except Exception as e:
     st.error(f"Erro ao iniciar modelo: {e}")
@@ -39,4 +39,3 @@ if user_input:
 for msg in st.session_state.history:
     with st.chat_message(msg["role"]):
         st.markdown(msg["text"])
-        
