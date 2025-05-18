@@ -1,56 +1,37 @@
 import streamlit as st
-from google.generativeai import client
+import google.generativeai as genai
 
-# Sua chave API do Google AI embutida
-API_KEY = "AIzaSyDbDd4xX4_be2mHEd27p1HLwSG0g8nde40"
-client.configure(api_key=API_KEY)
+# Esconde menu, rodapé e cabeçalho
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .block-container {padding-top: 2rem;}
+    </style>
+""", unsafe_allow_html=True)
 
-st.set_page_config(page_title="ChatVision", page_icon="🤖")
+# Configura a API do Gemini
+genai.configure(api_key="AIzaSyDbDd4xX4_be2mHEd27p1HLwSG0g8nde40")
 
-st.title("ChatVision - Chat estilo ChatGPT")
+model = genai.GenerativeModel("gemini-pro")
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+st.title("ChatVision")
 
-def enviar_pergunta(pergunta):
-    if not pergunta.strip():
-        return None
-    st.session_state.messages.append({"role": "user", "content": pergunta})
+if "chat_history" not in st.session_state:
+    st.session_state.chat_history = []
 
-    # Chamada à API do Google Generative AI
+prompt = st.chat_input("Digite sua pergunta...")
+
+if prompt:
+    st.session_state.chat_history.append(("Você", prompt))
     try:
-        response = client.chat.completions.create(
-            model="chat-bison-001",
-            messages=[{"role": "user", "content": pergunta}],
-        )
-        resposta = response.choices[0].message.content
+        response = model.generate_content(prompt)
+        st.session_state.chat_history.append(("IA", response.text))
     except Exception as e:
-        resposta = f"Erro ao chamar API: {e}"
+        st.session_state.chat_history.append(("Erro", f"Erro ao chamar API: {e}"))
 
-    st.session_state.messages.append({"role": "assistant", "content": resposta})
-
-# Campo de input aparece só se não tiver pergunta recente não respondida
-if "input_visible" not in st.session_state:
-    st.session_state.input_visible = True
-
-if st.session_state.input_visible:
-    pergunta = st.text_input("Digite sua pergunta:", key="input_pergunta")
-    botao = st.button("Enviar")
-
-    if botao and pergunta:
-        enviar_pergunta(pergunta)
-        st.session_state.input_visible = False  # Esconde o input depois de enviar
-
-# Mostrar histórico das mensagens tipo chat
-for msg in st.session_state.messages:
-    if msg["role"] == "user":
-        st.markdown(f"**Você:** {msg['content']}")
-    else:
-        st.markdown(f"**ChatVision:** {msg['content']}")
-
-# Botão para reiniciar conversa e mostrar o input de novo
-if not st.session_state.input_visible:
-    if st.button("Nova pergunta"):
-        st.session_state.input_visible = True
-        st.experimental_rerun()
+for role, message in st.session_state.chat_history:
+    with st.chat_message("user" if role == "Você" else "assistant"):
+        st.markdown(message)
         
