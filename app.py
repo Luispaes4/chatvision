@@ -1,8 +1,8 @@
 import streamlit as st
-import google.generativeai as genai
+import openai
 
-# Configura a chave da API
-genai.configure(api_key="AIzaSyB5gvHKwrUX1XXNxZ2CfOAI-NE1UPX3CB8")
+# Configurar chave da API OpenAI
+openai.api_key = "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"
 
 # Esconde menu, rodapé e cabeçalho
 hide_streamlit_style = """
@@ -15,13 +15,18 @@ hide_streamlit_style = """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 # Interface do chat
-st.title("ChatVision")
+st.title("ChatVision (GPT-4)")
 
 user_input = st.text_input("Digite sua pergunta:")
 if user_input:
     try:
-        model = genai.GenerativeModel("gemini-1.5-pro")
-        response = model.generate_content(user_input)
-        st.markdown(f"**Resposta:** {response.text}")
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "user", "content": user_input}
+            ]
+        )
+        st.markdown(f"**Resposta:** {response.choices[0].message.content}")
     except Exception as e:
         st.error(f"Erro ao chamar API: {e}")
+        
