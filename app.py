@@ -1,36 +1,36 @@
-import streamlit as st
 import google.generativeai as genai
+import streamlit as st
 
-# Esconde menu, rodapé e cabeçalho
+# Chave da API do Gemini
+genai.configure(api_key="AIzaSyDMVC671ENiVJUFkp0Qd8FSUfI4I_ZInSA")
+
+# Inicializa o modelo
+model = genai.GenerativeModel("gemini-1.5-pro")
+
+# Esconde menu, rodapé e cabeçalho do Streamlit
 hide_streamlit_style = """
     <style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
+    .st-emotion-cache-1v0mbdj {display: none;} /* ícones extras */
+    .st-emotion-cache-13ln4jf {display: none;} /* mensagens duplicadas */
     </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-# Chave da API Gemini
-genai.configure(api_key="AIzaSyDbDd4xX4_be2mHEd27p1HLwSG0g8nde40")
-
-# Inicializa o modelo Gemini 1.5 Pro
-try:
-    model = genai.GenerativeModel(model_name="models/gemini-1.5-pro-latest")
-except Exception as e:
-    st.error(f"Erro ao configurar o modelo: {e}")
-
+# Título do app
 st.title("ChatVision")
 
-# Campo de texto com desaparecimento da pergunta
-prompt = st.text_input("Digite sua pergunta:", key="input")
+# Caixa de entrada do usuário
+user_input = st.text_input("Digite sua pergunta:", "")
 
-if prompt:
+# Chamada da API e resposta
+if user_input:
     with st.spinner("Pensando..."):
         try:
-            response = model.generate_content(prompt)
-            st.session_state.input = ""  # Limpa o campo após enviar
-            st.markdown(f"**Resposta:** {response.text}")
+            response = model.generate_content(user_input)
+            st.write("Resposta da IA:", response.text)
         except Exception as e:
             st.error(f"Erro ao chamar API: {e}")
             
