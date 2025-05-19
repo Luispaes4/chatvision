@@ -1,32 +1,31 @@
-import streamlit as st
-import openai
+import requests
 
-# Configurar chave da API OpenAI
-openai.api_key = "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"
+API_KEY = "AIzaSyDbDd4xX4_be2mHEd27p1HLwSG0g8nde40"
+url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={API_KEY}"
 
-# Esconde menu, rodapé e cabeçalho
-hide_streamlit_style = """
-    <style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    </style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+# Função de chat com Gemini
+def gemini_chat(user_input):
+    payload = {
+        "contents": [
+            {
+                "parts": [{"text": user_input}]
+            }
+        ]
+    }
 
-# Interface do chat
-st.title("ChatVision (GPT-4)")
+    headers = {
+        "Content-Type": "application/json"
+    }
 
-user_input = st.text_input("Digite sua pergunta:")
-if user_input:
-    try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "user", "content": user_input}
-            ]
-        )
-        st.markdown(f"**Resposta:** {response.choices[0].message.content}")
-    except Exception as e:
-        st.error(f"Erro ao chamar API: {e}")
-        
+    response = requests.post(url, headers=headers, json=payload)
+
+    if response.status_code == 200:
+        data = response.json()
+        return data['candidates'][0]['content']['parts'][0]['text']
+    else:
+        return f"Erro: {response.status_code}\n{response.text}"
+
+# Exemplo de uso
+pergunta = input("Digite sua pergunta: ")
+resposta = gemini_chat(pergunta)
+print("\nGemini respondeu:\n", resposta)
